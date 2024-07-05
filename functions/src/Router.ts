@@ -12,6 +12,8 @@ const deals = new Deals;
 
 router.get("/db/getbanner", banner.getBanner);
 router.get("/db/getdeals/:state/:page", deals.getDeals);
+router.get("/db/getdeals/:pid", deals.getDealDetails);
+
 
 
 export default router;

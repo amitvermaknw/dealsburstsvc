@@ -34,8 +34,37 @@ class DealsServices {
                 documentData['documentId'] = doc.id;
                 result.push(documentData as ProductListProps);
             });
+            console.log("deals list")
             res.json(result);
 
+        } catch (error) {
+            if (error instanceof Error) {
+                res.status(500).send(`Error getting documents: ${error.message}`)
+            } else {
+                res.status(500).send('An unknow error occured');
+            }
+        }
+    }
+
+    async getProductDetails(req: Request, res: Response) {
+        try {
+            const querySnapURLString = await db.collection("streetdeals_collection/streetdeals/product_details")
+                .where("urlstring", "==", req.params.pid)
+                .get();
+            const querySnapPId = await db.collection("streetdeals_collection/streetdeals/product_details")
+                .where("pid", "==", req.params.pid)
+                .get();
+
+            const results = new Map<string, FirebaseFirestore.DocumentData>();
+            querySnapURLString.forEach(doc => results.set(doc.id, doc.data()));
+
+            querySnapPId.forEach(doc => {
+                if (!results.has(doc.id)) {
+                    results.set(doc.id, doc.data());
+                }
+            });
+            const finalList = Array.from(results.values());
+            res.status(200).json(finalList);
         } catch (error) {
             if (error instanceof Error) {
                 res.status(500).send(`Error getting documents: ${error.message}`)

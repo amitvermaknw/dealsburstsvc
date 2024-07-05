@@ -17,6 +17,7 @@ import router from "./Router";
 // config.initConfig();
 
 const app: Express = express();
+app.use(express.json());
 app.use("/api", router);
 
 export const dealsburst = onRequest(app);
