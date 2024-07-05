@@ -1,0 +1,19 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "product_details",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "psearchkeywords",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "pid",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
