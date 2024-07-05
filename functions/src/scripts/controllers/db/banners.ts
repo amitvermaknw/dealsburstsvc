@@ -5,7 +5,11 @@ const bannerSvc = new BannerServices();
 
 class Banners {
     async getBanner(req: Request, res: Response) {
-        return await bannerSvc.fetchBannerService(req, res);
+        return await bannerSvc.fetchBanner(req, res);
+    }
+
+    async addBanner(req: Request, res: Response) {
+        return await bannerSvc.addBanner(req, res);
     }
 }
 

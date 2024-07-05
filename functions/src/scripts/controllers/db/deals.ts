@@ -9,8 +9,11 @@ class Deals {
     }
 
     async getDealDetails(req: Request, res: Response) {
-        console.log("initiated");
         return await dealsSvc.getProductDetails(req, res);
+    }
+
+    async deleteDeals(req: Request, res: Response) {
+        return await dealsSvc.deleteDeals(req, res);
     }
 }
 

@@ -10,9 +10,13 @@ const banner = new Banners;
 const deals = new Deals;
 
 
-router.get("/db/getbanner", banner.getBanner);
-router.get("/db/getdeals/:state/:page", deals.getDeals);
-router.get("/db/getdeals/:pid", deals.getDealDetails);
+router.get("/db/banner", banner.getBanner);
+router.post("/db/banner", banner.addBanner);
+// router.delete("/db/babber",)
+router.get("/db/deals/:state/:page", deals.getDeals);
+router.get("/db/deals/:pid", deals.getDealDetails);
+router.delete("/db/deals", deals.deleteDeals);
+
 
 
 

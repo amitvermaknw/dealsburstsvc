@@ -10,3 +10,4 @@ node_modules/
 *.local
 
 firebaseKeys.json
+firebaseConfig.ts
