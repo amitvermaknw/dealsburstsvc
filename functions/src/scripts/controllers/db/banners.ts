@@ -11,6 +11,14 @@ class Banners {
     async addBanner(req: Request, res: Response) {
         return await bannerSvc.addBanner(req, res);
     }
+
+    async deleteBanner(req: Request, res: Response) {
+        return await bannerSvc.deleteBanner(req, res);
+    }
+
+    async getSingleBanner(req: Request, res: Response) {
+        return await bannerSvc.getSingleBanner(req, res);
+    }
 }
 
 export default Banners;

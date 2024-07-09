@@ -13,20 +13,20 @@ let lastVisibleData: QueryDocumentSnapshot<DocumentData, DocumentData>;
 class DealsServices {
     async getDeals(req: Request, res: Response) {
         try {
-            const param: number = parseInt(req.params.page);
+            const pageNo: number = parseInt(req.params.page);
             let query: QuerySnapshot<DocumentData, DocumentData> | undefined = undefined;
 
             if (req.params.state == 'start') {
                 query = await db.collection(docPath)
                     .where("dealstatus", "==", "Active")
                     .orderBy("pid", "desc")
-                    .limit(param).get();
+                    .limit(pageNo).get();
             } else if (req.params.state === 'next') {
                 query = await db.collection(docPath)
                     .where("dealstatus", "==", "Active")
                     .orderBy("pid", "desc")
                     .startAfter(lastVisibleData)
-                    .limit(param).get();
+                    .limit(pageNo).get();
             }
             const result: Array<ProductListProps> = [];
 
@@ -74,25 +74,39 @@ class DealsServices {
         }
     }
 
-    async addUpdateDeals(req: Request, res: Response) {
+    async addDeals(req: Request, res: Response) {
         const payload = req.body();
         const cloudinary = new CloudinaryUtil;
-        if (payload.callType === 'add') {
+        if (payload.pimage.image) {
             payload.pimageurl = await cloudinary.uploadProductImage(payload.pimage, 'deals');
-        } else if (payload.callType === 'update') {
-            if (payload.pimage.image) {
-                payload.pimageurl = await cloudinary.uploadProductImage(payload.pimage, 'deals');
-            } else {
-                payload.pimageurl = payload.pimage.imageObject;
-            }
+        } else {
+            payload.pimageurl = payload.pimage.imageObject;
         }
         const snapshot = await db.collection(docPath).add(payload);
         if (snapshot.id) {
-            res.status(200).send({ msg: "Product added/update successfully" });
+            res.status(200).send({ msg: "Product added successfully" });
         } else {
             res.status(400).send({ msg: "Error while add transaction" });
         }
     }
+
+    async updateDeals(req: Request, res: Response) {
+        const payload = req.body();
+        const cloudinary = new CloudinaryUtil;
+        if (payload.pimage.image) {
+            payload.pimageurl = await cloudinary.uploadProductImage(payload.pimage, 'deals');
+        } else {
+            payload.pimageurl = payload.pimage.imageObject;
+        }
+        const docRef = await db.collection(docPath).doc(payload.documentId);
+        await docRef.update(payload);
+        if (docRef.id) {
+            res.status(200).send({ msg: "Product updated successfully" });
+        } else {
+            res.status(400).send({ msg: "Error while update deals transaction" });
+        }
+    }
+
 
     async getSingleDeals(req: Request, res: Response) {
         try {
