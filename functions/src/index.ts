@@ -11,13 +11,13 @@ import { onRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import express, { Express } from "express";
 import router from "./Router";
-// import Config from "./scripts/utils/config";
-
-// const config = new Config;
-// config.initConfig();
 
 const app: Express = express();
 app.use(express.json());
 app.use("/api", router);
 
+app.get("/health", (req, res) => {
+    logger.log("Service is up and running");
+    res.send("Service is up and running");
+})
 export const dealsburst = onRequest(app);

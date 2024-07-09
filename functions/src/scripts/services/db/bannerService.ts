@@ -3,7 +3,7 @@ import Config from "../../utils/config";
 import CloudinaryUtil from "../../utils/cloudinaryUtil";
 
 const config = new Config();
-const db = config.initConfig();
+const db = config.initConfig().db;
 const docPath = "streetdeals_collection/streetdeals/banner_details";
 
 

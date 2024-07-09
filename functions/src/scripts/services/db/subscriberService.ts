@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import Config from "../../utils/config";
 
 const config = new Config();
-const db = config.initConfig();
+const db = config.initConfig().db;
 
 class SubscriberServices {
     async addSub(req: Request, res: Response) {

@@ -1,16 +1,17 @@
 import admin from 'firebase-admin';
+import { firebaseKeys } from '../../../firebaseConfig';
 
-var serviceAccount = require('../../../firebaseKeys.json');
+// var serviceAccount = require('../../../firebaseKeys.json');
 
 class Config {
     initConfig() {
         if (!admin.apps.length) {
             admin.initializeApp({
-                credential: admin.credential.cert(serviceAccount),
+                credential: admin.credential.cert(firebaseKeys as admin.ServiceAccount),
                 databaseURL: "https://streettadka-default-rtdb.firebaseio.com"
             });
         }
-        return admin.firestore();
+        return { db: admin.firestore(), admin: admin };
     }
 }
 

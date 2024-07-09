@@ -5,7 +5,7 @@ import { ProductListProps } from "../../Interface/dealsInterface";
 import CloudinaryUtil from "../../utils/cloudinaryUtil";
 
 const config = new Config();
-const db = config.initConfig();
+const db = config.initConfig().db;
 const docPath = "streetdeals_collection/streetdeals/product_details";
 
 let lastVisibleData: QueryDocumentSnapshot<DocumentData, DocumentData>;
@@ -31,7 +31,7 @@ class DealsServices {
             const result: Array<ProductListProps> = [];
 
             query?.forEach((doc: { data: () => any, id: string }) => {
-                lastVisibleData = query.docs[query.docs.length - 1];
+                lastVisibleData = query?.docs[query.docs.length - 1];
                 const documentData = doc.data();
                 documentData['documentId'] = doc.id;
                 result.push(documentData as ProductListProps);
