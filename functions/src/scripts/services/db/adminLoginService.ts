@@ -3,31 +3,28 @@ import Config from "../../utils/config";
 import { firebaseConfigKeys } from "../../../../firebaseConfig";
 import axios from "axios";
 
-
 const config = new Config();
 const db = config.initConfig().db;
 const admin = config.initConfig().admin;
 const docPath = "streetdeals_collection/streetdeals/admin_token";
 const firebaseAPIKey = firebaseConfigKeys.apiKey;
 
-
 class AdminLoginServices {
 
     async validateToken(req: Request, res: Response, next: NextFunction) {
-        const userSessionToken = req.headers.authorization;
-
-        if (!userSessionToken) {
+        const token = req.headers.authorization;
+        if (!token) {
             return res.status(401).send('Unauthorized');
         }
+
         try {
-            const decodeToken = await admin.auth().verifyIdToken(userSessionToken);
-            console.log("decodeToken", decodeToken);
+            await admin.auth().verifyIdToken(token);
             next();
         } catch (error) {
             if (error instanceof Error) {
-                res.status(500).send(`Getting error during login: ${error.message}`)
+                res.status(500).send({ authStatus: false, msg: error.message })
             } else {
-                res.status(500).send('An unknow error occured');
+                res.status(500).send('An unknow error occured while token verification');
             }
         }
     }
@@ -42,15 +39,26 @@ class AdminLoginServices {
             });
 
             const { localId } = response.data;
+            debugger;
             if (localId) {
                 const customToken = await admin.auth().createCustomToken(localId);
-                res.json({ customToken });
+                const response = await axios.post(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${firebaseAPIKey}`, {
+                    token: customToken,
+                    returnSecureToken: true,
+                });
+
+                const idToken = response.data.idToken
+                if (idToken) {
+                    res.status(200).send({ token: idToken });
+                }
+
+                res.status(400).send({ msg: "Token not generated", token: false });
             } else {
                 res.status(400).send({ msg: "Invalid email or password" });
             }
         } catch (error) {
             if (error instanceof Error) {
-                res.status(500).send(`Getting error during login: ${error.message}`)
+                res.status(500).send({ authStatus: false, msg: error.message })
             } else {
                 res.status(500).send('An unknow error occured');
             }
@@ -68,7 +76,7 @@ class AdminLoginServices {
             }
         } catch (error) {
             if (error instanceof Error) {
-                res.status(500).send(`Error getting documents: ${error.message}`)
+                res.status(500).send({ qStatus: false, msg: error.message })
             } else {
                 res.status(500).send('An unknow error occured');
             }
@@ -89,7 +97,7 @@ class AdminLoginServices {
             });
         } catch (error) {
             if (error instanceof Error) {
-                res.status(500).send(`Error getting documents: ${error.message}`)
+                res.status(500).send({ qStatus: false, msg: error.message })
             } else {
                 res.status(500).send('An unknow error occured');
             }
