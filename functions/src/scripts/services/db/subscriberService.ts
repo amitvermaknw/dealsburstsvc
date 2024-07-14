@@ -13,14 +13,14 @@ class SubscriberServices {
             if (docRef.id) {
                 res.status(200).send({ msg: "Subscriber added successfully" });
             } else {
-                res.status(400).send({ msg: "Subscriber added successfully" })
+                res.status(400).send({ msg: "Subscriber added successfully" });
             }
 
         } catch (error) {
             if (error instanceof Error) {
-                res.status(500).send(`Error getting documents: ${error.message}`)
+                res.status(500).send({ msg: `Error getting documents: ${error.message}` });
             } else {
-                res.status(500).send('An unknow error occured');
+                res.status(500).send({ msg: `An unknow error occured` });
             }
         }
     }

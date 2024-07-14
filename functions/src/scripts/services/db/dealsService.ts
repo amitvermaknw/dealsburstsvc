@@ -36,7 +36,6 @@ class DealsServices {
                 documentData['documentId'] = doc.id;
                 result.push(documentData as ProductListProps);
             });
-            console.log("deals list")
             res.json(result);
 
         } catch (error) {
@@ -58,6 +57,7 @@ class DealsServices {
                 .get();
             const results = new Map<string, FirebaseFirestore.DocumentData>();
             querySnapURLString.forEach(doc => results.set(doc.id, doc.data()));
+
             querySnapPId.forEach(doc => {
                 if (!results.has(doc.id)) {
                     results.set(doc.id, doc.data());
@@ -111,15 +111,17 @@ class DealsServices {
     async getSingleDeals(req: Request, res: Response) {
         try {
             const querySnap = await db.collection(docPath)
-                .where("urlstring", "==", req.params.pid)
+                .where("pid", "==", req.params.pid)
                 .get();
 
-            const results = new Map<string, FirebaseFirestore.DocumentData>();
+            // const results = new Map<string, FirebaseFirestore.DocumentData>();
+            const results: Array<FirebaseFirestore.DocumentData | string> = [];
             querySnap.forEach(doc => {
-                results.set(doc.id, doc.data());
+                results.push(doc.data());
+                results.push({ documentId: doc.id });
             });
-            const finalList = Array.from(results.values());
-            res.status(200).json(finalList);
+            // const finalList = Array.from(results.values()); 
+            res.status(200).json(results);
 
         } catch (error) {
             if (error instanceof Error) {
