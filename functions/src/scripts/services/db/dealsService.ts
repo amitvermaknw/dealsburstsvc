@@ -74,15 +74,8 @@ class DealsServices {
         }
     }
 
-    async addDeals(req: Request, res: Response) {
-        const payload = req.body();
-        const cloudinary = new CloudinaryUtil;
-        if (payload.pimage.image) {
-            payload.pimageurl = await cloudinary.uploadProductImage(payload.pimage, 'deals');
-        } else {
-            payload.pimageurl = payload.pimage.imageObject;
-        }
-        const snapshot = await db.collection(docPath).add(payload);
+    async addDeals(jsonPayload: Request, res: Response) {
+        const snapshot = await db.collection(docPath).add(jsonPayload);
         if (snapshot.id) {
             res.status(200).send({ msg: "Product added successfully" });
         } else {
@@ -91,7 +84,7 @@ class DealsServices {
     }
 
     async updateDeals(req: Request, res: Response) {
-        const payload = req.body();
+        const payload = req.body;
         const cloudinary = new CloudinaryUtil;
         if (payload.pimage.image) {
             payload.pimageurl = await cloudinary.uploadProductImage(payload.pimage, 'deals');

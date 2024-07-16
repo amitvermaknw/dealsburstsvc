@@ -13,6 +13,8 @@ const subscriber = new Subscriber;
 
 
 router.post("/db/login", login.login);
+router.post("/db/admintoken", login.addAdminLogToken);
+router.put("/db/admintoken", login.updateAdminTokenLog);
 router.get("/db/banner", banner.getBanner);
 router.get("/db/banner/details/:bid", banner.getBanner);
 router.post("/db/banner", login.validateToken, banner.addBanner);

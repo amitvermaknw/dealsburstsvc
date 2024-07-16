@@ -22,7 +22,7 @@ class AdminLoginServices {
             next();
         } catch (error) {
             if (error instanceof Error) {
-                res.status(500).send({ authStatus: false, msg: error.message })
+                res.status(401).send({ authStatus: false, msg: error.message })
             } else {
                 res.status(500).send('An unknow error occured while token verification');
             }
@@ -39,7 +39,6 @@ class AdminLoginServices {
             });
 
             const { localId } = response.data;
-            debugger;
             if (localId) {
                 const customToken = await admin.auth().createCustomToken(localId);
                 const response = await axios.post(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithCustomToken?key=${firebaseAPIKey}`, {
@@ -50,9 +49,9 @@ class AdminLoginServices {
                 const idToken = response.data.idToken
                 if (idToken) {
                     res.status(200).send({ token: idToken });
+                } else {
+                    res.status(400).send({ msg: "Token not generated", token: false });
                 }
-
-                res.status(400).send({ msg: "Token not generated", token: false });
             } else {
                 res.status(400).send({ msg: "Invalid email or password" });
             }
@@ -67,10 +66,10 @@ class AdminLoginServices {
 
     async addAdminLogToken(req: Request, res: Response) {
         try {
-            const payload = req.body();
+            const payload = req.body;
             const snapshot = await db.collection(docPath).add(payload);
             if (snapshot.id) {
-                res.status(200).send(snapshot.id);
+                res.status(200).send({ msg: snapshot.id });
             } else {
                 res.status(400).json({ msg: "Error while add transaction" });
             }
@@ -85,16 +84,15 @@ class AdminLoginServices {
 
     async updateAdminTokenLog(req: Request, res: Response) {
         try {
+            const payload = req.body;
             const snapshot = await db.collection(docPath)
                 .where("status", "==", true).get();
 
             snapshot.forEach(async (rec) => {
                 const docRef = await db.collection(docPath).doc(rec.id);
-                await docRef.update({
-                    status: false,
-                    timestamp: new Date().toISOString()
-                })
+                await docRef.update(payload);
             });
+            res.status(200).send("success");
         } catch (error) {
             if (error instanceof Error) {
                 res.status(500).send({ qStatus: false, msg: error.message })

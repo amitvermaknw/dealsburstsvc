@@ -19,6 +19,7 @@ class CloudinaryUtil {
                 data: formData
             })
             const data = await res.data();
+            console.log("after upload data", data);
             if (Object.prototype.hasOwnProperty.call(data, 'error')) {
                 return (data.message);
             }
