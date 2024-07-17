@@ -25,27 +25,21 @@ class Deals {
     }
 
     async addDeals(req: Request, res: Response) {
-        const payload = req.body;
-        const { imageData, jsonPayload } = await readMulti.getFieldsFromFormData(req, res);
-
+        // const payload = req.body;
+        const { imageData, jsonPayload, imageInfo } = await readMulti.getFieldsFromFormData(req, res);
         const cloudinary = new CloudinaryUtil;
-
-        console.log("payload1", payload);
-
-        console.log("jsonPayload", jsonPayload);
-
         if (imageData) {
-            console.log("payload.pimage.image", imageData);
-            jsonPayload.pimageurl = await cloudinary.uploadProductImage(imageData, 'deals');
+            const uploadStatus = await cloudinary.uploadProductImage({ imageData, imageInfo }, 'deals')
+            if (uploadStatus.code === 200) {
+                console.log("uploadStatus.imageUrl", uploadStatus.imageUrl);
+                jsonPayload.pimageurl = uploadStatus.imageUrl;
+                return await dealsSvc.addDeals(jsonPayload, res);
+            } else {
+                res.status(201).send({ msg: "Image upload failed" });
+            }
+        } else {
+            res.status(201).send({ msg: "Not able to extract image" });
         }
-        // else {
-        //     console.log("payload.pimage.imageObject", payload.pimage.imageObject);
-        //     payload.pimageurl = payload.pimage.imageObject;
-        // }
-
-        console.log("payload", jsonPayload);
-
-        return await dealsSvc.addDeals(jsonPayload, res);
     }
 
     async updateDeals(req: Request, res: Response) {
