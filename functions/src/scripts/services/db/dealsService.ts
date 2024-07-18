@@ -120,14 +120,17 @@ class DealsServices {
 
     async deleteDeals(req: Request, res: Response) {
         const cloudinary = new CloudinaryUtil;
-        const payload = req.body();
+        const payload = req.body;
         const status = await cloudinary.deleteProductImage(payload.imageUrl);
         try {
-            if (status === true) {
+            if (status.result === 'ok') {
                 const docRef = db.collection(docPath).doc(payload.pid);
                 await docRef.delete();
-                res.status(200).send("Document deleted successfully")
+                res.status(200).send({ msg: "Document deleted successfully" })
+            } else {
+                res.status(500).send({ msg: `Not able to delete image and data: ${status.result}` });
             }
+
         } catch (error) {
             if (error instanceof Error) {
                 res.status(500).send(`Error getting documents: ${error.message}`)

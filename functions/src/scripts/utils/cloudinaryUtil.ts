@@ -14,12 +14,11 @@ class CloudinaryUtil {
 
     async uploadProductImage(payload: any, uploadType: string): Promise<any> {
         try {
-
             return new Promise((resolve, reject) => {
                 cloudinary.v2.uploader.upload_stream(
                     {
                         resource_type: 'image',
-                        public_id: payload.imageInfo.filename ? `${payload.imageInfo.filename}` : undefined,
+                        //public_id: payload.imageInfo.filename ? `${payload.imageInfo.filename}` : undefined,
                         folder: uploadType === 'deals' ? 'product_images' : 'banner_images',
                         upload_preset: cloudinaryConfig.uploadPreset
                     },
@@ -34,7 +33,8 @@ class CloudinaryUtil {
             })
 
         } catch (error) {
-            console.log(error)
+            if (error instanceof Error)
+                return ({ code: 500, msg: `Error while uploading images ${error.message}` })
         }
     };
 
@@ -42,24 +42,31 @@ class CloudinaryUtil {
         const imageUrlArr = imageUrl.split("/").reverse();
         const imageName = imageUrlArr[0].split(".");
         const publicId = `${imageUrlArr[1]}/${imageName[0]}`;
-
-        const sig = await this.sha256(`public_id=${publicId}&timestamp=${parseInt((new Date().getTime() / 1000).toFixed(0))}${cloudinaryConfig.api_secret}`);
-
-        const formData = new FormData();
-        formData.append('api_key', cloudinaryConfig.api_key);
-        // formData.append('folder', 'product_images');
-        formData.append('public_id', publicId);
-        formData.append('signature', sig);
-        formData.append('timestamp', `${parseInt((new Date().getTime() / 1000).toFixed(0))}`);
         try {
-            const res = await axios(`${cloudinaryConfig.cloudinaryURL}/${cloudinaryConfig.cloudName}/image/destroy`, {
-                method: 'POST',
-                data: formData
-            })
-            return res.data();
+            const result = await cloudinary.v2.uploader.destroy(publicId);
+            return result
         } catch (error) {
-            console.log(error)
+            return 'Error deleting image';
         }
+
+        // const sig = await this.sha256(`public_id=${publicId}&timestamp=${parseInt((new Date().getTime() / 1000).toFixed(0))}${cloudinaryConfig.api_secret}`);
+
+        // const formData = new FormData();
+        // formData.append('api_key', cloudinaryConfig.api_key);
+        // formData.append('folder', 'product_images');
+        // formData.append('public_id', publicId);
+        // formData.append('signature', sig);
+        // formData.append('timestamp', `${parseInt((new Date().getTime() / 1000).toFixed(0))}`);
+        // try {
+        //     const res = await axios(`${cloudinaryConfig.cloudinaryURL}/${cloudinaryConfig.cloudName}/image/destroy`, {
+        //         method: 'POST',
+        //         data: formData
+        //     });
+        //     console.log(res.data());
+        //     return res.data();
+        // } catch (error) {
+        //     console.log(error)
+        // }
     };
 
     async sha256(input: string) {
