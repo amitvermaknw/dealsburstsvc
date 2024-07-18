@@ -13,20 +13,13 @@ cloudinary.v2.config({
 class CloudinaryUtil {
 
     async uploadProductImage(payload: any, uploadType: string): Promise<any> {
-        // const formData = new FormData();
-        // formData.append('file', await compressImage.compress(payload));
-        // formData.append('image', payload.imageData, { filename: payload.imageInfo.filename, contentType: payload.imageInfo.mimeType });
-        // formData.append('upload_preset', cloudinaryConfig.uploadPreset);
-        // formData.append('cloud_name', cloudinaryConfig.cloudName);
-        // formData.append('folder', uploadType === 'deals' ? 'product_images' : 'banner_images');
-
         try {
 
             return new Promise((resolve, reject) => {
                 cloudinary.v2.uploader.upload_stream(
                     {
                         resource_type: 'image',
-                        public_id: payload.imageInfo.filename ? `uploads/${payload.imageInfo.filename}` : undefined,
+                        public_id: payload.imageInfo.filename ? `${payload.imageInfo.filename}` : undefined,
                         folder: uploadType === 'deals' ? 'product_images' : 'banner_images',
                         upload_preset: cloudinaryConfig.uploadPreset
                     },
@@ -35,7 +28,6 @@ class CloudinaryUtil {
                             console.error({ code: 500, success: false, msg: 'Cloudinary upload error:', error: error });
                             resolve({ code: 500, success: false, msg: 'Cloudinary upload error:', error: error });
                         }
-                        console.log('Cloudinary upload result:', result);
                         resolve({ code: 200, success: true, imageUrl: result?.secure_url, msg: 'success' });
                     }
                 ).end(payload.imageData);

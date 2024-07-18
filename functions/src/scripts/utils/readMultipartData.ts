@@ -8,17 +8,10 @@ class ReadMultipartData {
         let imageInfo: any = null;
 
         await new Promise((resolve, reject) => {
-            // bb.once('close', resolve).once('error', reject).on('file', (name, file_stream, info) => {
-            //     file_stream.resume();
-            //     console.dir({ name, file_stream, info }, { depth: null });
-            // }).end(req.rawBody);
-
             bb.once('close', resolve).once('error', reject).on('file', (name, file, info) => {
                 const { filename, encoding, mimeType } = info;
                 const chunks: Uint8Array[] = [];
-
                 file.on('data', (data) => {
-                    console.log(`File [${name}] got ${data.length} bytes`);
                     if (name === 'image') {
                         chunks.push(data);
                     } else if (name === 'json') {
@@ -32,14 +25,12 @@ class ReadMultipartData {
                     imageData = Buffer.concat(chunks);
                     imageInfo = { filename, encoding, mimeType };
                 });
-
             }).end(req.rawBody);
 
             bb.once('close', resolve).once('error', reject).on('finish', () => {
                 resolve({ imageData, jsonPayload, imageInfo });
             });
             req.pipe(bb);
-
         });
 
         return { imageData, jsonPayload, imageInfo };
