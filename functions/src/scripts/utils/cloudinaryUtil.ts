@@ -48,25 +48,6 @@ class CloudinaryUtil {
         } catch (error) {
             return 'Error deleting image';
         }
-
-        // const sig = await this.sha256(`public_id=${publicId}&timestamp=${parseInt((new Date().getTime() / 1000).toFixed(0))}${cloudinaryConfig.api_secret}`);
-
-        // const formData = new FormData();
-        // formData.append('api_key', cloudinaryConfig.api_key);
-        // formData.append('folder', 'product_images');
-        // formData.append('public_id', publicId);
-        // formData.append('signature', sig);
-        // formData.append('timestamp', `${parseInt((new Date().getTime() / 1000).toFixed(0))}`);
-        // try {
-        //     const res = await axios(`${cloudinaryConfig.cloudinaryURL}/${cloudinaryConfig.cloudName}/image/destroy`, {
-        //         method: 'POST',
-        //         data: formData
-        //     });
-        //     console.log(res.data());
-        //     return res.data();
-        // } catch (error) {
-        //     console.log(error)
-        // }
     };
 
     async sha256(input: string) {

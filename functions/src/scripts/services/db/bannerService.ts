@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Config from "../../utils/config";
 import CloudinaryUtil from "../../utils/cloudinaryUtil";
+import { BannerListProps } from "../../Interface/dealsInterface";
 
 const config = new Config();
 const db = config.initConfig().db;
@@ -11,9 +12,9 @@ class BannerServices {
     async fetchBanner(req: Request, res: Response) {
         try {
             const snapshot = await db.collection(docPath).get();
-            const data: { id: string, [key: string]: any }[] = [];
+            const data: { documentId: string, [key: string]: any }[] = [];
             snapshot.forEach((doc: { id: string, data(): {} }) => {
-                data.push({ id: doc.id, ...doc.data() });
+                data.push({ documentId: doc.id, ...doc.data() });
             });
             res.json(data);
         } catch (error) {
@@ -25,17 +26,8 @@ class BannerServices {
         }
     }
 
-    async addBanner(req: Request, res: Response) {
+    async addBanner(payload: BannerListProps, res: Response) {
         try {
-            const payload = req.body();
-            const cloudinary = new CloudinaryUtil;
-
-            if (payload.bimage.image) {
-                payload.bimageurl = await cloudinary.uploadProductImage(payload.bimage, 'deals');
-            } else {
-                payload.bimageurl = payload.bimage.imageObject;
-            }
-
             const snapshot = await db.collection(docPath).add(payload);
             if (snapshot.id) {
                 res.status(200).send({ msg: "Banner added successfully" });
@@ -51,18 +43,9 @@ class BannerServices {
         }
     }
 
-    async updateBanner(req: Request, res: Response) {
+    async updateBanner(payload: BannerListProps, res: Response) {
         try {
-            const payload = req.body();
-            const cloudinary = new CloudinaryUtil;
-
-            if (payload.bimage.image) {
-                payload.bimageurl = await cloudinary.uploadProductImage(payload.bimage, 'deals');
-            } else {
-                payload.bimageurl = payload.bimage.imageObject;
-            }
-
-            const docRef = db.collection(docPath).doc(payload.documentId);
+            const docRef = db.collection(docPath).doc(payload.documentId ? payload.documentId : '');
             await docRef.update(payload);
 
             if (docRef.id) {
@@ -82,13 +65,20 @@ class BannerServices {
 
     async deleteBanner(req: Request, res: Response) {
         const cloudinary = new CloudinaryUtil;
-        const payload = req.body();
+        const payload = req.body;
+
+        console.log("payload", payload);
         const status = await cloudinary.deleteProductImage(payload.imageUrl);
+
+        console.log("status", status);
         try {
-            if (status === true) {
-                const docRef = db.collection(docPath).doc(payload.pid);
+            if (status.result === 'ok' || status.result === 'not found') {
+                console.log("inside delete function", payload.bid);
+                const docRef = db.collection(docPath).doc(payload.bid);
                 await docRef.delete();
                 res.status(200).send("Document deleted successfully")
+            } else {
+                res.status(500).send({ msg: `Not able to delete image and data: ${status.result}` });
             }
         } catch (error) {
             if (error instanceof Error) {
