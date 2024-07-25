@@ -24,6 +24,14 @@ class Deals {
         return await dealsSvc.getSingleDeals(req, res);
     }
 
+    async getDealsOnCategory(req: Request, res: Response) {
+        return await dealsSvc.getDealsOnCategory(req, res);
+    }
+
+    async getDealsCategory(req: Request, res: Response) {
+        return await dealsSvc.getDealsCategory(req, res);
+    }
+
     async addDeals(req: Request, res: Response) {
         const { imageData, jsonPayload, imageInfo } = await readMulti.getFieldsFromFormData(req, res);
         const cloudinary = new CloudinaryUtil;

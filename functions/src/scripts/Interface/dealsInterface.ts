@@ -30,3 +30,9 @@ export type BannerListProps = {
     btimestamp: string,
     documentId?: string,
 }
+
+export type ProductCategory = {
+    category_label: string,
+    category_name: string,
+    category_value: string
+}

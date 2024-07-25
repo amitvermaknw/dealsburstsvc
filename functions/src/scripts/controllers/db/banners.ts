@@ -37,6 +37,33 @@ class Banners {
     async getSingleBanner(req: Request, res: Response) {
         return await bannerSvc.getSingleBanner(req, res);
     }
+
+    async updateBanner(req: Request, res: Response) {
+        const payload = req.body;
+        if (Object.prototype.hasOwnProperty.call(payload, 'bimageurl')) {
+            if (payload.bimageurl !== "") {
+                console.log("payload", payload);
+                return await bannerSvc.updateBanner(payload, res);
+            } else {
+                res.status(201).send({ msg: "Image url is not found while update." })
+            }
+        } else {
+            const { imageData, jsonPayload, imageInfo } = await readMulti.getFieldsFromFormData(req, res);
+            const cloudinary = new CloudinaryUtil;
+            if (imageData) {
+                const uploadStatus = await cloudinary.uploadProductImage({ imageData, imageInfo }, 'banner')
+                if (uploadStatus.code === 200) {
+                    jsonPayload.bimageurl = uploadStatus.imageUrl;
+                    return await bannerSvc.updateBanner(jsonPayload, res);
+                } else {
+                    res.status(201).send({ msg: "Image upload failed" });
+                }
+            } else {
+                res.status(201).send({ msg: "Not able to extract image" });
+            }
+        }
+    }
+
 }
 
 export default Banners;

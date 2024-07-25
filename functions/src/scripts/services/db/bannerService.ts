@@ -2,21 +2,43 @@ import { Request, Response } from "express";
 import Config from "../../utils/config";
 import CloudinaryUtil from "../../utils/cloudinaryUtil";
 import { BannerListProps } from "../../Interface/dealsInterface";
+import { DocumentData, QueryDocumentSnapshot, QuerySnapshot } from "firebase-admin/firestore";
+
 
 const config = new Config();
 const db = config.initConfig().db;
 const docPath = "streetdeals_collection/streetdeals/banner_details";
+let lastVisibleData: QueryDocumentSnapshot<DocumentData, DocumentData>;
 
 
 class BannerServices {
     async fetchBanner(req: Request, res: Response) {
         try {
-            const snapshot = await db.collection(docPath).get();
-            const data: { documentId: string, [key: string]: any }[] = [];
-            snapshot.forEach((doc: { id: string, data(): {} }) => {
-                data.push({ documentId: doc.id, ...doc.data() });
+            const pageNo: number = parseInt(req.params.page);
+            let query: QuerySnapshot<DocumentData, DocumentData> | undefined = undefined;
+
+            if (req.params.state == 'start') {
+                query = await db.collection(docPath)
+                    .where("bstatus", "==", "active")
+                    .orderBy("bid", "desc")
+                    .limit(pageNo).get();
+            } else if (req.params.state === 'next') {
+                query = await db.collection(docPath)
+                    .where("bstatus", "==", "active")
+                    .orderBy("bid", "desc")
+                    .startAfter(lastVisibleData)
+                    .limit(pageNo).get();
+            }
+            const result: Array<BannerListProps> = [];
+
+            query?.forEach((doc: { data: () => any, id: string }) => {
+                lastVisibleData = query?.docs[query.docs.length - 1];
+                const documentData = doc.data();
+                documentData['documentId'] = doc.id;
+                result.push(documentData as BannerListProps);
             });
-            res.json(data);
+            res.json(result);
+
         } catch (error) {
             if (error instanceof Error) {
                 res.status(500).send(`Error getting documents: ${error.message}`)
@@ -62,7 +84,6 @@ class BannerServices {
         }
     }
 
-
     async deleteBanner(req: Request, res: Response) {
         const cloudinary = new CloudinaryUtil;
         const payload = req.body;
@@ -92,15 +113,15 @@ class BannerServices {
     async getSingleBanner(req: Request, res: Response) {
         try {
             const querySnap = await db.collection(docPath)
-                .where("urlstring", "==", req.params.bid)
+                .where("bid", "==", req.params.bid)
                 .get();
 
-            const results = new Map<string, FirebaseFirestore.DocumentData>();
+            const results: Array<FirebaseFirestore.DocumentData | string> = [];
             querySnap.forEach(doc => {
-                results.set(doc.id, doc.data());
+                results.push(doc.data());
+                results.push({ documentId: doc.id });
             });
-            const finalList = Array.from(results.values());
-            res.status(200).json(finalList);
+            res.status(200).json(results);
 
         } catch (error) {
             if (error instanceof Error) {
