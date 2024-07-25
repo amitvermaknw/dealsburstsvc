@@ -19,7 +19,7 @@ class AdminLoginServices {
 
         try {
             await admin.auth().verifyIdToken(token);
-            next();
+            return next();
         } catch (error) {
             if (error instanceof Error) {
                 res.status(401).send({ authStatus: false, msg: error.message })

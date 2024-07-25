@@ -10,7 +10,7 @@ const docPath = "streetdeals_collection/streetdeals/product_details";
 const pCategory = "streetdeals_collection/streetdeals/product_category";
 
 
-let lastVisibleData: QueryDocumentSnapshot<DocumentData, DocumentData>;
+let lastVisibleData: QueryDocumentSnapshot<DocumentData, DocumentData> | undefined;
 
 class DealsServices {
     async getDeals(req: Request, res: Response) {

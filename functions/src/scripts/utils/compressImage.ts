@@ -18,7 +18,7 @@ class CompressImage {
 
     async compressImage(imageBuffer: Buffer): Promise<any> {
         // Convert buffer to stream and then to image (optional)
-        const imageStream: any = this.bufferToStream(imageBuffer);
+        //const imageStream: any = this.bufferToStream(imageBuffer);
 
         // Use sharp to process the image if needed (optional)
         // const processedImageBuffer: any = await sharp(imageStream)

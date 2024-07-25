@@ -35,8 +35,6 @@ router.delete("/db/deals", login.validateToken, deals.deleteDeals);
 router.post("/db/deals", login.validateToken, deals.addDeals);
 router.put("/db/deals", login.validateToken, deals.updateDeals);
 
-
-
 //Subscribe
 router.post("/db/subscribe", subscriber.addSubscriber);
 

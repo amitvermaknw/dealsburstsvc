@@ -8,7 +8,7 @@ import { DocumentData, QueryDocumentSnapshot, QuerySnapshot } from "firebase-adm
 const config = new Config();
 const db = config.initConfig().db;
 const docPath = "streetdeals_collection/streetdeals/banner_details";
-let lastVisibleData: QueryDocumentSnapshot<DocumentData, DocumentData>;
+let lastVisibleData: QueryDocumentSnapshot<DocumentData, DocumentData> | undefined;
 
 
 class BannerServices {

@@ -1,7 +1,5 @@
 import { cloudinaryConfig } from '../../../firebaseConfig';
-import FormData from "form-data";
 import crypto from 'crypto';
-import axios from "axios";
 import cloudinary from 'cloudinary';
 
 cloudinary.v2.config({
