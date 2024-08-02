@@ -1,30 +1,38 @@
-import CompressImage from "./compressImage";
 import { cloudinaryConfig } from '../../../firebaseConfig';
-import FormData from "form-data";
 import crypto from 'crypto';
-import axios from "axios";
+import cloudinary from 'cloudinary';
+
+cloudinary.v2.config({
+    cloud_name: cloudinaryConfig.cloudName,
+    api_key: cloudinaryConfig.api_key,
+    api_secret: cloudinaryConfig.api_secret
+});
 
 class CloudinaryUtil {
-    async uploadProductImage(payload: any, uploadType: string) {
 
-        const compressImage = new CompressImage
-        const formData = new FormData();
-        formData.append('file', await compressImage.compress(payload.image));
-        formData.append('upload_preset', cloudinaryConfig.uploadPreset);
-        formData.append('cloud_name', cloudinaryConfig.cloudName);
-        formData.append('folder', uploadType === 'deals' ? 'product_images' : 'banner_images');
+    async uploadProductImage(payload: any, uploadType: string): Promise<any> {
         try {
-            const res = await axios(`${cloudinaryConfig.cloudinaryURL}/${cloudinaryConfig.cloudName}/upload`, {
-                method: 'POST',
-                data: formData
+            return new Promise((resolve, reject) => {
+                cloudinary.v2.uploader.upload_stream(
+                    {
+                        resource_type: 'image',
+                        //public_id: payload.imageInfo.filename ? `${payload.imageInfo.filename}` : undefined,
+                        folder: uploadType === 'deals' ? 'product_images' : 'banner_images',
+                        upload_preset: cloudinaryConfig.uploadPreset
+                    },
+                    (error, result) => {
+                        if (error) {
+                            console.error({ code: 500, success: false, msg: 'Cloudinary upload error:', error: error });
+                            resolve({ code: 500, success: false, msg: 'Cloudinary upload error:', error: error });
+                        }
+                        resolve({ code: 200, success: true, imageUrl: result?.secure_url, msg: 'success' });
+                    }
+                ).end(payload.imageData);
             })
-            const data = await res.data();
-            if (Object.prototype.hasOwnProperty.call(data, 'error')) {
-                return (data.message);
-            }
-            return data.secure_url
+
         } catch (error) {
-            console.log(error)
+            if (error instanceof Error)
+                return ({ code: 500, msg: `Error while uploading images ${error.message}` })
         }
     };
 
@@ -32,23 +40,11 @@ class CloudinaryUtil {
         const imageUrlArr = imageUrl.split("/").reverse();
         const imageName = imageUrlArr[0].split(".");
         const publicId = `${imageUrlArr[1]}/${imageName[0]}`;
-
-        const sig = await this.sha256(`public_id=${publicId}&timestamp=${parseInt((new Date().getTime() / 1000).toFixed(0))}${cloudinaryConfig.api_secret}`);
-
-        const formData = new FormData();
-        formData.append('api_key', cloudinaryConfig.api_key);
-        // formData.append('folder', 'product_images');
-        formData.append('public_id', publicId);
-        formData.append('signature', sig);
-        formData.append('timestamp', `${parseInt((new Date().getTime() / 1000).toFixed(0))}`);
         try {
-            const res = await axios(`${cloudinaryConfig.cloudinaryURL}/${cloudinaryConfig.cloudName}/image/destroy`, {
-                method: 'POST',
-                data: formData
-            })
-            return res.data();
+            const result = await cloudinary.v2.uploader.destroy(publicId);
+            return result
         } catch (error) {
-            console.log(error)
+            return 'Error deleting image';
         }
     };
 

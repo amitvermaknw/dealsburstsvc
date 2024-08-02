@@ -19,3 +19,20 @@ export type ProductListProps = {
     ptimeframe: string
     urlstring: string
 };
+
+export type BannerListProps = {
+    bannerurl: string,
+    bid: string,
+    bimage: string,
+    bimageurl: string,
+    bname: string,
+    bstatus: string,
+    btimestamp: string,
+    documentId?: string,
+}
+
+export type ProductCategory = {
+    category_label: string,
+    category_name: string,
+    category_value: string
+}
