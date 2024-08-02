@@ -19,6 +19,10 @@ class Login {
     async updateAdminTokenLog(req: Request, res: Response) {
         return await adminLogin.updateAdminTokenLog(req, res);
     }
+
+    async tokenValidation(req: Request, res: Response) {
+        return await adminLogin.tokenValidation(req, res);
+    }
 }
 
 export default Login;

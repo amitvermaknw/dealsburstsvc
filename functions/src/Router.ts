@@ -16,6 +16,7 @@ router.post("/db/login", login.login);
 //Admin token
 router.post("/db/admintoken", login.addAdminLogToken);
 router.put("/db/admintoken", login.updateAdminTokenLog);
+router.get("/db/tokenvalidation", login.tokenValidation);
 
 //Banner
 router.get("/db/banner/:state/:page", banner.getBanner);

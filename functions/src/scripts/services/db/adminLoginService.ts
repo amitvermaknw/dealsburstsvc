@@ -16,7 +16,6 @@ class AdminLoginServices {
         if (!token) {
             return res.status(401).send('Unauthorized');
         }
-
         try {
             await admin.auth().verifyIdToken(token);
             return next();
@@ -98,6 +97,23 @@ class AdminLoginServices {
                 res.status(500).send({ qStatus: false, msg: error.message })
             } else {
                 res.status(500).send('An unknow error occured');
+            }
+        }
+    }
+
+    async tokenValidation(req: Request, res: Response) {
+        const token = req.headers.authorization;
+        if (!token) {
+            return res.status(401).send('Unauthorized');
+        }
+        try {
+            await admin.auth().verifyIdToken(token);
+            return res.status(200).send("success");
+        } catch (error) {
+            if (error instanceof Error) {
+                return res.status(401).send({ authStatus: false, msg: error.message })
+            } else {
+                return res.status(500).send('An unknow error occured while token verification');
             }
         }
     }
