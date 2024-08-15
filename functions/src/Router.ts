@@ -44,8 +44,7 @@ router.post("/db/subscribe", subscriber.addSubscriber);
 //Userlogin
 router.post("/db/user/login", userLogin.login);
 router.get("/db/auth/validate", userLogin.tokenValidation);
-
-
+router.post("/db/users/signup", userLogin.userSignup);
 
 
 

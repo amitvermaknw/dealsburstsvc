@@ -6,7 +6,7 @@ import axios from "axios";
 const config = new Config();
 const db = config.initConfig().db;
 const admin = config.initConfig().admin;
-const docPath = "streetdeals_collection/streetdeals/user_login";
+const docPath = "streetdeals_collection/streetdeals/users_details";
 const firebaseAPIKey = firebaseConfigKeys.apiKey;
 
 class UserLoginServices {
@@ -107,7 +107,6 @@ class UserLoginServices {
             return res.status(401).send('Unauthorized');
         }
         try {
-            console.log("indeside token", token);
             const decodedToken = await admin.auth().verifyIdToken(token);
             return res.status(200).send(decodedToken.uid);
         } catch (error) {
@@ -118,6 +117,49 @@ class UserLoginServices {
             }
         }
     }
+
+    async userSignup(req: Request, res: Response) {
+        const payload = req.body;
+        if (!payload) {
+            return res.status(500).send({ msg: 'Payload is missing' });
+        }
+        try {
+            const payload = req.body;
+            const preRecord = await db.collection(docPath).where("email", "==", payload.email).get();
+            let recordFound: FirebaseFirestore.DocumentData | string = ''
+            preRecord.forEach(async (doc) => {
+                recordFound = doc.id;
+            });
+
+            if (recordFound !== '') {
+                const docRef = await db.collection(docPath).doc(recordFound);
+                await docRef.update(payload);
+                if (docRef.id) {
+                    console.log("record updated");
+                    res.status(200).send({ msg: "success" });
+                } else {
+                    res.status(400).send({ msg: "failed" });
+                }
+            } else {
+                const snapshot = await db.collection(docPath).add(payload);
+                if (snapshot.id) {
+                    return res.status(200).send({ msg: snapshot.id });
+                } else {
+                    return res.status(400).json({ msg: "Error while adding users details" });
+                }
+            }
+
+        } catch (error) {
+            if (error instanceof Error) {
+                return res.status(500).send({ qStatus: false, msg: error.message })
+            } else {
+                return res.status(500).send('An unknow error occured');
+            }
+        }
+    }
+
+
+
 }
 
 export default UserLoginServices;

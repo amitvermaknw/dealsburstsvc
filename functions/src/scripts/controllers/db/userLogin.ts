@@ -24,6 +24,10 @@ class UserLogin {
     async tokenValidation(req: Request, res: Response) {
         return await userLogin.tokenValidation(req, res);
     }
+
+    async userSignup(req: Request, res: Response) {
+        return await userLogin.userSignup(req, res);
+    }
 }
 
 export default UserLogin;
