@@ -129,7 +129,7 @@ class DealsServices {
             if (status.result === 'ok') {
                 const docRef = db.collection(docPath).doc(payload.pid);
                 await docRef.delete();
-                res.status(200).send({ msg: "Document deleted successfully" })
+                res.status(200).send({ msg: "Document deleted successfully" });
             } else {
                 res.status(500).send({ msg: `Not able to delete image and data: ${status.result}` });
             }

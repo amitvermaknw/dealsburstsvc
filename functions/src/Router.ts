@@ -43,7 +43,7 @@ router.post("/db/subscribe", subscriber.addSubscriber);
 
 //Userlogin
 router.post("/db/user/login", userLogin.login);
-router.get("/db/auth/validate", userLogin.tokenValidation);
+router.get("/db/users/auth/validate", userLogin.userSignupValidate);
 router.post("/db/users/signup", userLogin.userSignup);
 
 

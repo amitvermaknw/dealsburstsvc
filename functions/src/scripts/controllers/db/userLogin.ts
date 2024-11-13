@@ -13,20 +13,12 @@ class UserLogin {
         return await userLogin.validateToken(req, res, next);
     }
 
-    async addAdminLogToken(req: Request, res: Response) {
-        return await userLogin.addAdminLogToken(req, res);
-    }
-
-    async updateAdminTokenLog(req: Request, res: Response) {
-        return await userLogin.updateAdminTokenLog(req, res);
-    }
-
-    async tokenValidation(req: Request, res: Response) {
-        return await userLogin.tokenValidation(req, res);
-    }
-
     async userSignup(req: Request, res: Response) {
         return await userLogin.userSignup(req, res);
+    }
+
+    async userSignupValidate(req: Request, res: Response) {
+        return await userLogin.userSignupValidation(req, res);
     }
 }
 
