@@ -22,7 +22,7 @@ class Banners {
                 jsonPayload.bimageurl = uploadStatus.imageUrl;
                 return await bannerSvc.addBanner(jsonPayload, res);
             } else {
-                res.status(201).send({ msg: "Image upload failed" });
+                res.status(201).send({ msg: uploadStatus });
             }
         } else {
             res.status(201).send({ msg: "Not able to extract image" });
@@ -56,7 +56,7 @@ class Banners {
                     jsonPayload.bimageurl = uploadStatus.imageUrl;
                     return await bannerSvc.updateBanner(jsonPayload, res);
                 } else {
-                    res.status(201).send({ msg: "Image upload failed" });
+                    res.status(201).send({ msg: uploadStatus });
                 }
             } else {
                 res.status(201).send({ msg: "Not able to extract image" });
