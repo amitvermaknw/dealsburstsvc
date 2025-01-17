@@ -9,8 +9,8 @@ class UserLogin {
         return await userLogin.login(req, res);
     }
 
-    async validateToken(req: Request, res: Response, next: NextFunction) {
-        return await userLogin.validateToken(req, res, next);
+    async userTokenValidation(req: Request, res: Response, next: NextFunction) {
+        return await userLogin.userTokenValidation(req, res);
     }
 
     async userSignup(req: Request, res: Response) {

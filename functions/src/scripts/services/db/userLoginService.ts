@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import Config from "../../utils/config";
 import { firebaseConfigKeys } from "../../../../firebaseConfig";
 import axios from "axios";
@@ -11,22 +11,22 @@ const firebaseAPIKey = firebaseConfigKeys.apiKey;
 
 class UserLoginServices {
 
-    async validateToken(req: Request, res: Response, next: NextFunction) {
-        const token = req.headers.authorization;
-        if (!token) {
-            return res.status(401).send('Unauthorized');
-        }
-        try {
-            await admin.auth().verifyIdToken(token);
-            return next();
-        } catch (error) {
-            if (error instanceof Error) {
-                res.status(401).send({ authStatus: false, msg: error.message })
-            } else {
-                res.status(500).send('An unknow error occured while token verification');
-            }
-        }
-    }
+    // async userTokenValidation(req: Request, res: Response, next: NextFunction) {
+    //     const token = req.headers.authorization;
+    //     if (!token) {
+    //         return res.status(401).send('Unauthorized');
+    //     }
+    //     try {
+    //         await admin.auth().verifyIdToken(token);
+    //         return next();
+    //     } catch (error) {
+    //         if (error instanceof Error) {
+    //             res.status(401).send({ authStatus: false, msg: error.message })
+    //         } else {
+    //             res.status(500).send('An unknow error occured while token verification');
+    //         }
+    //     }
+    // }
 
     async login(req: Request, res: Response) {
         const { email, password } = req.body;
@@ -101,43 +101,36 @@ class UserLoginServices {
     //     }
     // }
 
-    // async tokenValidation(req: Request, res: Response) {
-    //     const token = req.headers.authorization;
-    //     const email = req.headers.email;
+    async userTokenValidation(req: Request, res: Response) {
+        const token = req.headers.authorization;
+        const email = req.headers.email;
 
-    //     if (!token) {
-    //         return res.status(401).send('Unauthorized');
-    //     }
-    //     try {
-    //         // const decodedToken = await admin.auth().verifyIdToken(token);
-    //         // return res.status(200).send(decodedToken.uid);
-    //         console.log("email", email);
-    //         console.log("token", token);
+        if (!token) {
+            return res.status(401).send('Unauthorized');
+        }
+        try {
+            console.log("email", email);
+            const preRecord = await db.collection(docPath).where("email", "==", email).where("accessToken", "==", token).get();
+            // let recordFound: FirebaseFirestore.DocumentData | string = ''
+            if (!preRecord.empty) {
+                let recordFound: FirebaseFirestore.DocumentData | string = ''
+                preRecord.forEach(async (doc) => {
+                    recordFound = doc.id;
+                });
+                console.log("userFound", recordFound);
+                return res.status(200).send({ msg: "success" })
+            }
 
-    //         const preRecord = await db.collection(docPath).where("email", "==", email).where("accessToken", "==", token).get();
-    //         // let recordFound: FirebaseFirestore.DocumentData | string = ''
-    //         if (!preRecord.empty) {
-    //             let recordFound: FirebaseFirestore.DocumentData | string = ''
-    //             preRecord.forEach(async (doc) => {
-    //                 recordFound = doc.id;
-    //             });
-    //             console.log("recordFound", recordFound);
-    //             return res.status(200).send({ msg: "success" })
-    //         }
+            return res.status(401).send({ authStatus: false, msg: 'Unauthorized' })
 
-    //         // if (preRecord.size > 0) {
-    //         //     return res.status(200).send({ msg: "success" })
-    //         // }
-    //         return res.status(401).send({ authStatus: false, msg: 'Unauthorized' })
-
-    //     } catch (error) {
-    //         if (error instanceof Error) {
-    //             return res.status(401).send({ authStatus: false, msg: error.message })
-    //         } else {
-    //             return res.status(500).send('An unknow error occured while token verification');
-    //         }
-    //     }
-    // }
+        } catch (error) {
+            if (error instanceof Error) {
+                return res.status(401).send({ authStatus: false, msg: error.message })
+            } else {
+                return res.status(500).send('An unknow error occured while token verification');
+            }
+        }
+    }
 
     async userSignup(req: Request, res: Response) {
         const payload = req.body;
